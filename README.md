@@ -69,8 +69,6 @@ Windows 版为免安装便携包，需要 Microsoft Edge WebView2 Runtime，无�
 
 请勿在公开 Issue、截图或日志中附上 API 密钥、密码、完整认证文件或恢复记录。
 
-## 开源与来源
+## 开源与许可
 
-DaiFuGPT 基于 [SuperGPT Connect v0.1.6](https://github.com/superpilot69/supergpt-connect/tree/v0.1.6) 制作，调整应用名称、品牌图标和默认站点，沿用其客户端配置引擎。
-
-原项目采用 MIT 许可。本发行包保留原项目及第三方版权和许可证说明，详见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。本项目独立维护。
+采用 MIT 许可，保留相关版权与许可证。使用 React、Tauri 和 Rust；许可及第三方说明见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。本项目独立维护，不是 Claude 或 Codex 的官方客户端。
