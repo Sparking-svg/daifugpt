@@ -61,7 +61,33 @@ Windows 版为免安装便携包，需要 Microsoft Edge WebView2 Runtime，无�
 6714e134d79b2581ad061c574b9bdd99da5cdc5d5b1f23e08ca9214b722c3161  DaiFuGPT.zip
 ```
 
-本衍生构建尚未完成全部客户端端到端导入、对话及工具调用验证，尚未进行 Windows 发布者代码签名。模型目录读取和配置写入成功不等于全部功能已验证。详见 [VERIFICATION.md](VERIFICATION.md)。
+当前构建尚未完成全部客户端端到端导入、对话及工具调用验证，尚未进行 Windows 发布者代码签名。模型目录读取和配置写入成功不等于全部功能已验证。详见 [VERIFICATION.md](VERIFICATION.md)。
+
+## 开发与构建
+
+源码以仓库中的 [DaiFuGPT-0.1.9-source.zip](DaiFuGPT-0.1.9-source.zip) 提供。解压并进入 `DaiFuGPT-source`，使用 Node.js 22+、pnpm 10 和稳定版 Rust。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test:ui
+cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked
+```
+
+macOS Apple Silicon 构建需要在 Mac 环境执行：
+
+```bash
+rustup target add aarch64-apple-darwin
+pnpm build:macos
+```
+
+Windows 免安装包在 Windows 环境构建：
+
+```bash
+pnpm build:windows
+```
+
+产物位于 `release/`。[Mac 构建流程](https://github.com/Sparking-svg/daifugpt/actions/workflows/build-macos.yml) 会核对源码摘要、运行检查，再验证应用名称、图标、版本、arm64 架构与 ad-hoc 签名。
 
 ## 问题反馈
 
