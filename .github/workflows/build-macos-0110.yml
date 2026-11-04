@@ -1,0 +1,66 @@
+name: Build DaiFuGPT macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    env:
+      APPLE_SIGNING_IDENTITY: '-'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Verify and unpack source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,zipfile
+          p=Path('DaiFuGPT-0.1.10-source.zip')
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='f47850a9322b0589c234009a66ac285de6c3571d5e6cab4e80017b73c3a6e3c6'
+          with zipfile.ZipFile(p) as z:
+              for name in z.namelist():
+                  assert name.startswith('DaiFuGPT-source/') and '..' not in Path(name).parts and not Path(name).is_absolute()
+              z.extractall('build')
+          PY
+      - name: Install locked dependencies
+        working-directory: build/DaiFuGPT-source
+        run: |
+          npm install --global pnpm@10.28.0
+          pnpm install --frozen-lockfile
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add aarch64-apple-darwin
+      - name: Verify branding and frontend
+        working-directory: build/DaiFuGPT-source
+        run: |
+          pnpm test:ui
+          pnpm check
+      - name: Isolated native core tests
+        working-directory: build/DaiFuGPT-source
+        run: cargo test --manifest-path src-tauri/Cargo.toml --no-default-features --locked
+      - name: Build and verify DaiFuGPT app
+        working-directory: build/DaiFuGPT-source
+        run: pnpm build:macos
+      - name: Preserve verified macOS package
+        uses: actions/upload-artifact@v7
+        with:
+          name: DaiFuGPT-macOS-arm64-0.1.10
+          path: |
+            build/DaiFuGPT-source/release/DaiFuGPT-0.1.10-macOS-arm64.zip
+            build/DaiFuGPT-source/release/SHA256SUMS.txt
+            build/DaiFuGPT-source/release/DaiFuGPT-macOS-verification.json
+          if-no-files-found: error
+          retention-days: 7
